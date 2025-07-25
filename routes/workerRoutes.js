@@ -66,7 +66,7 @@ router.get('/', async (req, res) => {
 // GET: Public profile view by ID (for QR code scanning)
 router.get('/public/:id', async (req, res) => {
   try {
-    const worker = await Worker.findById(req.params.id);
+    const worker = await Worker.findOne({ _id: req.params.id });
     if (!worker) return res.status(404).send('<h1>Worker Not Found</h1>');
 
     res.send(`
