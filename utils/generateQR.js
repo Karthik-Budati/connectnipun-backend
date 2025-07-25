@@ -11,7 +11,7 @@ cloudinary.config({
 });
 
 async function generateQR(worker) {
-  const profileURL = `https://connectnipun.onrender.com/worker/${worker._id}`;
+  const profileURL = `https://connectnipun.onrender.com/api/workers/public/${worker_id}`;
 
   try {
     const canvas = createCanvas(300, 300);
