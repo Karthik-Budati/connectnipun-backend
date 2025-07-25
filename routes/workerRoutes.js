@@ -20,13 +20,13 @@ router.post('/register', multer.single('image'), async (req, res) => {
       mandal: req.body.mandal,
       village: req.body.village,
       pincode: req.body.pincode,
-      image: req.file.path, // ✅ Cloudinary URL
+      image: req.file.path, 
     };
 
     const newWorker = new Worker(workerData);
     await newWorker.save();
 
-    const qrUrl = await generateQR(newWorker); // ✅ Already uploads to cloudinary
+    const qrUrl = await generateQR(newWorker); 
     newWorker.qrUrl = qrUrl;
     await newWorker.save();
 
@@ -63,6 +63,40 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET: Public profile view by ID (for QR code scanning)
+router.get('/public/:id', async (req, res) => {
+  try {
+    const worker = await Worker.findById(req.params.id);
+    if (!worker) return res.status(404).send('<h1>Worker Not Found</h1>');
+
+    res.send(`
+      <html>
+        <head>
+          <title>${worker.name} - Worker Profile</title>
+          <style>
+            body { font-family: sans-serif; background: #f2f2f2; padding: 20px; }
+            .card { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+            img { width: 100%; border-radius: 10px; }
+            h2 { margin-top: 0; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <img src="${worker.image}" alt="${worker.name}" />
+            <h2>${worker.name}</h2>
+            <p><strong>Mobile:</strong> ${worker.mobile}</p>
+            <p><strong>Skill:</strong> ${worker.skill}</p>
+            <p><strong>Location:</strong> ${worker.village}, ${worker.mandal}, ${worker.district} - ${worker.pincode}</p>
+          </div>
+        </body>
+      </html>
+    `);
+  } catch (err) {
+    console.error('Public worker profile error:', err);
+    res.status(500).send('<h1>Internal Server Error</h1>');
+  }
+});
+
 // GET: Get Worker by ID (protected)
 router.get('/:id', isVerified, async (req, res) => {
   try {
@@ -83,7 +117,7 @@ router.post('/:id/upload-work-image', multer.single('workImage'), async (req, re
 
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
-    const imageUrl = req.file.path; // ✅ Cloudinary URL
+    const imageUrl = req.file.path; 
     worker.workImages = worker.workImages ? [...worker.workImages, imageUrl] : [imageUrl];
     await worker.save();
 
