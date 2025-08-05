@@ -13,6 +13,7 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/workers', workerRoutes);
 app.use('/api/otp', otpRoutes);
+app.use(express.static(path.join(__dirname, 'client', 'build')));
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
 });
@@ -27,3 +28,4 @@ mongoose.connect(process.env.MONGO_URI)
     console.error("MongoDB connection error:", err.message);
 
   });
+
